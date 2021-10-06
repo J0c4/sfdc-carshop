@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Chevrolet</fullName>
+        <default>true</default>
+        <label>Chevrolet</label>
+    </customValue>
+    <customValue>
+        <fullName>Ferrari</fullName>
+        <default>false</default>
+        <label>Ferrari</label>
+    </customValue>
+    <customValue>
+        <fullName>Hyundai</fullName>
+        <default>false</default>
+        <label>Hyundai</label>
+    </customValue>
+    <customValue>
+        <fullName>Mazda</fullName>
+        <default>false</default>
+        <label>Mazda</label>
+    </customValue>
+    <customValue>
+        <fullName>Renault</fullName>
+        <default>false</default>
+        <label>Renault</label>
+    </customValue>
+    <customValue>
+        <fullName>Tesla</fullName>
+        <default>false</default>
+        <label>Tesla</label>
+    </customValue>
+    <customValue>
+        <fullName>Toyota</fullName>
+        <default>false</default>
+        <label>Toyota</label>
+    </customValue>
+    <masterLabel>Car Brands</masterLabel>
+    <sorted>true</sorted>
+</GlobalValueSet>

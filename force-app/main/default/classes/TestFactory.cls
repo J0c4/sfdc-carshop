@@ -12,4 +12,14 @@ public class TestFactory {
             LocaleSidKey = 'en_US'
           );
     }
+
+    public static Order__c createGenericOrder() {
+        return new Order__c(
+            Buyer_Address__c = 'Address',
+            Buyer_Name__c = 'Name',
+            Buyer_Phone__c = 'Phone',
+            Status__c = 'Approved',
+            Total_Price__c = 100
+        );
+    }
 }

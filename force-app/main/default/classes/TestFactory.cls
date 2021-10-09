@@ -2,6 +2,7 @@ public class TestFactory {
     public static User createGenericUser(String profile) {
         return new User(
             ProfileId = [SELECT Id FROM Profile WHERE Name = :profile].Id,
+            UserRoleId = [SELECT Id FROM UserRole WHERE Name = :profile].Id,
             LastName = 'testlastname',
             Email = 'test.carshop@jala-foundation.org',
             UserName = 'test.carshop.' + DateTime.now().getTime() + '@jala-foundation.org',

@@ -23,4 +23,14 @@ public class TestFactory {
             Total_Price__c = 100
         );
     }
+
+    public static Item__c createGenericItem() {
+        return new Item__c(
+            Car_Brand__c = 'Mazda',
+            Name = 'Item',
+            Price__c = 100,
+            Type__c = 'Spare',
+            Units__c = 1
+        );
+    }
 }

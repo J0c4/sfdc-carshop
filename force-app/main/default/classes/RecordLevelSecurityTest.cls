@@ -35,4 +35,60 @@ class RecordLevelSecurityTest {
             System.assert(orders.size() == 1);
         }
     }
+
+    @isTest
+    static void getBuyerRequestsFromOtherBuyerTest() {
+        User buyer1 = TestFactory.createGenericUser('Buyer');
+        User buyer2 = TestFactory.createGenericUser('Buyer');
+
+        System.runAs(buyer1) {
+            Order__c order = TestFactory.createGenericOrder();
+            insert order;
+
+            Item__c item = TestFactory.createGenericItem();
+            insert item;
+
+            Request__c request = new Request__c(
+                Item__c = item.Id,
+                Order__c = order.Id
+            );
+
+            insert request;
+        }
+
+        System.runAs(buyer2) {
+            List<Request__c> requests = new List<Request__c>();
+            requests = [SELECT Name FROM Request__c];
+
+            System.assert(requests.size() == 0);
+        }
+    }
+
+    @isTest
+    static void getBuyerRequestsFromSalesRepTest() {
+        User buyer = TestFactory.createGenericUser('Buyer');
+        User salesrep = TestFactory.createGenericUser('Sales Rep');
+
+        System.runAs(buyer) {
+            Order__c order = TestFactory.createGenericOrder();
+            insert order;
+
+            Item__c item = TestFactory.createGenericItem();
+            insert item;
+
+            Request__c request = new Request__c(
+                Item__c = item.Id,
+                Order__c = order.Id
+            );
+
+            insert request;
+        }
+
+        System.runAs(salesrep) {
+            List<Request__c> requests = new List<Request__c>();
+            requests = [SELECT Name FROM Request__c];
+
+            System.assert(requests.size() == 1);
+        }
+    }
 }

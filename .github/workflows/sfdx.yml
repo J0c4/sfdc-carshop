@@ -1,0 +1,96 @@
+name: Koala
+
+on:
+  pull_request:
+    branches: [ main ]
+    
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2.4.1
+      - name: Setting Salesforce CLI
+        run: |
+          npm install sfdx-cli
+          node_modules/sfdx-cli/bin/run --version
+          echo force://PlatformCLI::5Aep861FpKlGRwv8KBRE87o.DYcHMiqgmUQz5EvHZG0NJZDVP5eUWWEWqxHUdFWiheEgjo1Y4ySEYsZ0Mf_netA@resourceful-koala-6d261i-dev-ed.my.salesforce.com > auth
+          node_modules/sfdx-cli/bin/run auth:sfdxurl:store -f auth -s -a TEST
+      - name: Deploying to Org
+        id: deploy
+        run: |
+          delta=$(node_modules/sfdx-cli/bin/run force:source:deploy -p force-app)
+          delta="${delta//'%'/'%25'}"
+          delta="${delta//$'\n'/'%0A'}"
+          delta="${delta//$'\r'/'%0D'}"
+          echo "::set-output name=deploying::$delta"
+        continue-on-error: true
+      - name: Comment deploy success
+        uses: bubkoo/auto-comment@v1
+        if: steps.deploy.outcome == 'success'
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          pullRequestOpened: >
+            👋 @{{ author }}
+
+            Successful deployment!
+            Results:
+
+            ```
+
+            ${{ steps.deploy.outputs.deploying }}
+
+            ```
+      - name: Comment test error
+        uses: bubkoo/auto-comment@v1
+        if: steps.deploy.outcome != 'success'
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          pullRequestOpened: >
+            👋 @{{ author }}
+            
+            Deployment Results:
+            Something went wrong 😔 Please check the details of workflow.
+      - if: steps.deploy.outcome == 'failure'
+        run: node_modules/sfdx-cli/bin/run force:source:deploy -p force-app
+      - name: Runnig Apex Test
+        id: test
+        if: steps.deploy.outcome == 'success'
+        run: |
+          alpha=$(node_modules/sfdx-cli/bin/run force:apex:test:run --resultformat tap -u TEST --codecoverage -c -r human)
+          alpha="${alpha//'%'/'%25'}"
+          alpha="${alpha//$'\n'/'%0A'}"
+          alpha="${alpha//$'\r'/'%0D'}"
+          echo "::set-output name=testing::$alpha"
+        continue-on-error: true
+      - name: Comment test success
+        uses: bubkoo/auto-comment@v1
+        if: steps.test.outcome == 'success' && steps.deploy.outcome == 'success'
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          pullRequestOpened: >
+            👋 @{{ author }}
+            
+            Successful Test!
+            Results:
+
+            ```
+
+            ${{ steps.test.outputs.testing }}
+
+            ```
+      - name: Comment test error
+        uses: bubkoo/auto-comment@v1
+        if: steps.test.outcome != 'success' && steps.deploy.outcome == 'success'
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          pullRequestOpened: >
+            👋 @{{ author }}
+            
+            Test Results:
+            Something went wrong 😔 Please check the details of workflow.
+      - if: steps.test.outcome == 'failure' && steps.deploy.outcome == 'success'
+        run: node_modules/sfdx-cli/bin/run force:apex:test:run --resultformat tap -u TEST --codecoverage -c -r human
